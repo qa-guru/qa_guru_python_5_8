@@ -1,3 +1,4 @@
+
 class Product:
     """
     Класс продукта
@@ -18,7 +19,10 @@ class Product:
         TODO Верните True если количество продукта больше или равно запрашиваемому
             и False в обратном случае
         """
-        raise NotImplementedError
+        if self.quantity >= quantity:
+            return True
+        else:
+            return False
 
     def buy(self, quantity):
         """
@@ -26,7 +30,12 @@ class Product:
             Проверьте количество продукта используя метод check_quantity
             Если продуктов не хватает, то выбросите исключение ValueError
         """
-        raise NotImplementedError
+        if not self.check_quantity(quantity):
+            raise ValueError('Недостаточно продуктов')
+        else:
+            self.quantity -= quantity
+
+
 
     def __hash__(self):
         return hash(self.name + self.description)
@@ -50,26 +59,38 @@ class Cart:
         Метод добавления продукта в корзину.
         Если продукт уже есть в корзине, то увеличиваем количество
         """
-        raise NotImplementedError
+        if product in self.products:
+            self.products[product] += buy_count
+        else:
+            self.products[product] = buy_count
 
-    def remove_product(self, product: Product, remove_count=None):
+    def remove_product(self, product:Product, remove_count=None):
         """
         Метод удаления продукта из корзины.
         Если remove_count не передан, то удаляется вся позиция
         Если remove_count больше, чем количество продуктов в позиции, то удаляется вся позиция
         """
-        raise NotImplementedError
+        if remove_count is None or remove_count >= self.products[product]:
+            del self.products[product]
+        else:
+            self.products[product] -= remove_count
 
     def clear(self):
-        raise NotImplementedError
+        self.products.clear()
+
 
     def get_total_price(self) -> float:
-        raise NotImplementedError
+        total_price = sum(product.price * quantity for product, quantity in self.products.items())
+        return total_price
 
+
+
+    """
+    Метод покупки.
+    Учтите, что товаров может не хватать на складе.
+    В этом случае нужно выбросить исключение ValueError
+    """
     def buy(self):
-        """
-        Метод покупки.
-        Учтите, что товаров может не хватать на складе.
-        В этом случае нужно выбросить исключение ValueError
-        """
-        raise NotImplementedError
+        for product, quantity in self.products.items():
+            product.buy(quantity)
+        self.clear()
